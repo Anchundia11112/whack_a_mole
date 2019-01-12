@@ -1,0 +1,170 @@
+package wackAmole;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
+
+public class WackAMole {
+	int score;
+	int molesLeft;
+	int attemptsLeft;
+	char[][] moleGrid;
+
+	public WackAMole(int numAttempts, int gridDimension){
+		this.attemptsLeft = numAttempts;
+		this.moleGrid = new char[gridDimension][gridDimension];
+		
+		for(int row=0; row < moleGrid[0].length; row++) {
+			for(int column=0; column < moleGrid[0].length; column++) {
+				moleGrid[row][column] = '.';
+			}
+		}
+	}
+	
+	boolean place(int x, int y){
+		if(x == -1 || y == -1) {
+			System.out.println("You have given up. Game Over.");
+			System.exit(0);
+		}
+		if(x > moleGrid[0].length || y > moleGrid[1].length) {
+			System.out.println("Not placed");
+			return false;
+		}
+		else
+			moleGrid[x][y] = 'M';
+			//molesLeft -= 1;
+			return true;
+	}
+	
+	void whack(int x, int y) {
+		if(x == -1 && y == -1) {
+			System.out.println("You have given up. Game Over.");
+			return;
+		}
+		if(moleGrid[x][y] == 'M') {
+			attemptsLeft -= 1;
+			molesLeft -= 1;
+			moleGrid[x][y] = 'W';
+		}
+		else
+			attemptsLeft -= 1;
+	}
+	
+	void printGridToUser() {
+		for(int row=0; row < moleGrid[0].length; row++) {
+			for(int column=0; column < moleGrid[0].length; column++) {
+				if(moleGrid[row][column] == 'M') 
+					System.out.print('.');
+				else
+					System.out.print(moleGrid[row][column]);
+			}
+			System.out.println();
+		}
+	}
+	
+	
+	void printGrid() {
+		for(int row=0; row < moleGrid[0].length; row++) {
+			for(int column=0; column < moleGrid[0].length; column++) {
+				System.out.print(moleGrid[row][column]);
+			}
+			System.out.println();
+		}
+	}
+	
+	public static void main(String[] args) {
+		
+		WackAMole myGrid = new WackAMole(50, 10);
+		myGrid.score = 0;
+		myGrid.attemptsLeft = 50;
+		myGrid.molesLeft = 10;
+		
+		Random rand = new Random();
+		int moleLocationX = 0;
+		int moleLocationY = 0;
+		ArrayList<Integer> moleLocation = new ArrayList<Integer>();
+		
+		for(int i=0; i < 10; ++i) {
+			moleLocationX = rand.nextInt(9) + 1;
+			moleLocationY = rand.nextInt(9) + 1;
+			moleLocation.add(moleLocationX);
+			moleLocation.add(moleLocationY);
+			myGrid.place(moleLocationX,moleLocationY);
+		}
+		
+		Scanner playersChoiceX = new Scanner(System.in);
+		Scanner playersChoiceY = new Scanner(System.in);
+		
+		boolean gameDone = true;
+		boolean isItAWhack = true;
+		
+		myGrid.printGrid();
+		
+		System.out.println("You will be prompted to enter a number. "
+				+ "\nPress enter. Enter a y coordinate.");
+		System.out.println("You will have " + myGrid.attemptsLeft);
+		System.out.println(moleLocation.toString());
+		
+		System.out.println("Enter a x coordinate: ");
+		int xcoordinate = playersChoiceX.nextInt();
+		System.out.println("Enter a y coordinate: ");
+		int ycoordinate = playersChoiceY.nextInt();
+		
+		int index1 = 0;
+		int index2 = 1;
+		
+		while(gameDone) {
+			
+			if((xcoordinate == -1 && ycoordinate == -1)) {
+				myGrid.printGrid();
+				gameDone = false;
+			}
+			
+			myGrid.whack(xcoordinate, ycoordinate);
+			while(isItAWhack) {
+				index1 = 0;
+				index2 = 1;
+				if( !(xcoordinate == moleLocation.get(index1) && ycoordinate == moleLocation.get(index2)) ) {
+					index1 += 2;
+					index2 += 2;
+					if(index2 > moleLocation.size()) {
+						System.out.println("Not a hit.");
+						isItAWhack = false;
+						break;
+					}
+				}
+				else{
+					
+					myGrid.score += 1;
+					System.out.println("Congratulations!");
+					System.out.println("You have whacked a mole");
+					System.out.println("Your score is now: " + myGrid.score);
+					System.out.println("There are " + myGrid.molesLeft + " moles left.");
+					
+					isItAWhack = false;
+				}
+				//(xcoordinate == moleLocation.get(index1) && ycoordinate == moleLocation.get(index2) ) 
+			}
+			
+			System.out.println("You have: " + myGrid.attemptsLeft + " attempts left.");
+		
+			System.out.println("Enter a x coordinate: ");
+			xcoordinate = playersChoiceX.nextInt();
+			System.out.println("Enter a y coordinate: ");
+			ycoordinate = playersChoiceY.nextInt();
+			
+			
+			if(myGrid.attemptsLeft == 0) {
+				System.out.println("You lost :c");
+				gameDone = false;
+			}
+			if(myGrid.score == 10) {
+				System.out.println("Congratulations. You win");
+				break;
+			}
+			
+		}
+			
+		playersChoiceX.close();
+		playersChoiceY.close();
+	}
+}
